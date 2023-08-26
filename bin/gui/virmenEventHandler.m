@@ -1594,7 +1594,7 @@ switch type
                 end
             end
         end
-        undo.param{end+1,1} = {'changeProperty',[wNum oNum],'texture',copyVirmenObject(handles.exper.worlds{wNum}.objects{oNum}.texture)};
+%        e undo.param{end+1,1} = {'changeProperty',[wNum oNum],'texture',copyVirmenObject(handles.exper.worlds{wNum}.objects{oNum}.texture)};
         handles.exper.worlds{wNum}.objects{oNum} = setTexture(handles.exper.worlds{wNum}.objects{oNum},texture,'copy');
         redo.param{end+1,1} = {'changeProperty',[wNum oNum],'texture',copyVirmenObject(handles.exper.worlds{wNum}.objects{oNum}.texture)};
         if ~isempty(oth)
@@ -1625,6 +1625,7 @@ switch type
         end
         drawnow
         err = virmenEngine(handles.exper);
+        warning('off','all')
         if isDefault
             handles.exper.experimentCode = @undefined;
         end
