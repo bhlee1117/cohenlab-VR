@@ -74,7 +74,7 @@ classdef Rig < handle
             % start(obj.waterSession);
             write(obj.waterSession, [10]);
             t = timer;
-            t.StartDelay = 0.07;
+            t.StartDelay = 0.05;
             t.TimerFcn = @(~,~)write(obj.waterSession, [0]);
             start(t);
         end

@@ -47,11 +47,11 @@ else
     vr.stim_given=0;
     vr.reward_given=0;
     vr.endPosition = 115;
-    vr.World_change_lap=1;
+    vr.World_change_lap=5;
     vr.reward_pos=[repmat(vr.endPosition*0.3,1,vr.World_change_lap-1) repmat(vr.endPosition*0.8,1,1e4)];
     %first/second environment reward pos
     %stimulation lap
-    vr.stim_lap=[8 15:17];
+    vr.stim_lap=[20:24];
     %stimulation_position
     vr.zap_pos=vr.endPosition*0.3;
     vr.lapmessage=[];
@@ -140,5 +140,5 @@ function vr = terminationCodeFun(vr)
 %if (vr.rig.isRecording)
 %    filepath = fileparts(which('virmenLog.data')) + "\virmenLog.data"
 %    writeline(vr.rig.server, filepath)
-%    fclose(vr.fid);
+    fclose(vr.fid);
 %end
