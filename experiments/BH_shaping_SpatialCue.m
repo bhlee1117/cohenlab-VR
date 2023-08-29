@@ -137,8 +137,10 @@ end
 % --- TERMINATION code: executes after the ViRMEn engine stops.
 function vr = terminationCodeFun(vr)
 if (vr.rig.isAcquiring)
+    disp('Session ends')
     %filepath = fileparts(which('virmenLog.data')) + "\virmenLog.data"
     %writeline(vr.rig.server, filepath)
     fclose(vr.fid);
+    vr.rig.delete();
 
 end
