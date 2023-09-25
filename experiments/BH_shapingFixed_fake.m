@@ -20,7 +20,7 @@ tt=clock; t = datetime(tt);
 t.Format='yyMMddHHmm';
 fpath_target='C:\Users\Labmember\Data\ByungHun\';
 vr.give_water=1;
-vr.fake_rate=0.2; %80% of the lap will be rewarded
+vr.fake_rate=0; %80% of the lap will be rewarded
 vr.lickVoltage=0;
 vr.lapmessage=sprintf('Current lap is %d',0);
 vr.startTime = now;
@@ -138,5 +138,5 @@ if (vr.rig.isAcquiring)
     %filepath = fileparts(which('virmenLog.data')) + "\virmenLog.data"
     %writeline(vr.rig.server, filepath)
     fclose(vr.fid);
-
+       vr.rig.delete();
 end

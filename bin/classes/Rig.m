@@ -74,7 +74,7 @@ classdef Rig < handle
             % start(obj.waterSession);
             write(obj.waterSession, [10]);
             t = timer;
-            t.StartDelay = 0.05;
+            t.StartDelay = 0.07;
             t.TimerFcn = @(~,~)write(obj.waterSession, [0]);
             start(t);
         end
@@ -95,7 +95,7 @@ classdef Rig < handle
             write(obj.moveSession, [1]);
             %obj.BlueOn=1;
             t = timer;
-            t.StartDelay = 0.5;
+            t.StartDelay = 1;
             t.TimerFcn = @(~,~)write(obj.moveSession, [0]);
             obj.BlueOn=0;
             start(t);
