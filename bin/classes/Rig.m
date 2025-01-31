@@ -56,13 +56,15 @@ classdef Rig < handle
 
             addinput(obj.moveSession, deviceName, 'ctr0', 'EdgeCount');
             addinput(obj.moveSession, deviceName, 'port1/line3', 'Digital');
-            addoutput(obj.moveSession, deviceName, 'port1/line0', 'Digital');
+            addoutput(obj.moveSession, deviceName, 'port1/line0', 'Digital');  %DMD
+            write(obj.moveSession, [0]);
       
             addoutput(obj.waterSession, deviceName, 'ao0', 'Voltage');
             addinput(obj.waterSession, deviceName, 'ai3', 'Voltage');
 
 %             addoutput(obj.fakePump, deviceName, 'ao1', 'Voltage');
 
+            addoutput(obj.SendMicroscope, deviceName, 'port1/line1', 'Digital'); %Blue
             addinput(obj.SendMicroscope, deviceName, 'port1/line2', 'Digital');
             addinput(obj.SendMicroscope, deviceName, 'port0/line7', 'Digital');
             addinput(obj.SendMicroscope, deviceName, 'port0/line6', 'Digital');
@@ -92,23 +94,39 @@ classdef Rig < handle
 
         function zap(obj)
             % trigger the shutter on the rig to open for 1 second
-            write(obj.moveSession, [1]);
-            %obj.BlueOn=1;
+            write(obj.SendMicroscope, [1]);
             t = timer;
-            t.StartDelay = 1;
-            t.TimerFcn = @(~,~)write(obj.moveSession, [0]);
-            obj.BlueOn=0;
+            t.StartDelay = 1;            
+            t.TimerFcn = @(~,~)write(obj.SendMicroscope, [0]);
             start(t);
+            
         end
 
-         function zap_off(obj)
+        function DMDtrigg(obj)
             % trigger the shutter on the rig to open for 1 second
-            write(obj.moveSession, [0]);
-            obj.BlueOn=0;
+            write(obj.moveSession, [1]);
             t = timer;
-            t.StartDelay = 1;
-            t.TimerFcn = @(~,~)write(obj.moveSession, [1]);
-            obj.BlueOn=1;
+            t.StartDelay = 0.01;            
+            t.TimerFcn = @(~,~)write(obj.moveSession, [0]);
+            start(t);
+            
+        end
+
+         function zap_pulse(obj)
+            % trigger the shutter on the rig to open for 0.05 second
+            write(obj.SendMicroscope, [1]);
+            t = timer;
+            t.StartDelay = 0.05;            
+            t.TimerFcn = @(~,~)write(obj.SendMicroscope, [0]);
+            start(t);
+         end
+
+         function zap_pulse_short(obj)
+            % trigger the shutter on the rig to open for 0.05 second
+            write(obj.SendMicroscope, [1]);
+            t = timer;
+            t.StartDelay = 0.02;            
+            t.TimerFcn = @(~,~)write(obj.SendMicroscope, [0]);
             start(t);
         end
 
