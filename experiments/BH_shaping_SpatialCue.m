@@ -18,35 +18,35 @@ function vr = initializationCodeFun(vr)
 vr.rig.isAcquiring = true;
 tt=clock; t = datetime(tt);
 t.Format='yyMMddHHmm';
-fpath_target='C:\Users\Labmember\Data\ByungHun\';
+fpath_target='D:\Labmember\Data\ByungHun\VRlogs\';
 vr.give_water=1;
-vr.fake_rate=0.2; %80% of the lap will be rewarded
+vr.fake_rate=0.3; %80% of the lap will be rewarded
 vr.lickVoltage=0;
 vr.lapmessage=sprintf('Current lap is %d',0);
 vr.startTime = now;
 vr.time=[];
 filename=input('File name is :','s');
 filename=char(filename);
-% Set up plots
-vr.plotSize = 0.15;
-scr = get(0,'screensize');
-aspectRatio = scr(3)/scr(4)*.85;
-vr.plotX = (aspectRatio+1)/2;
-vr.plotY = 0.75;
-vr.reward_pos_world=[0.42 0.24 0.69];
 
+vr.reward_pos_world=[0.42 0.24 0.69];
+vr.lapmessage=[];
+vr.UIupdateCounter = 0;
 
 if isequal(vr.exper.movementFunction, @runFromRecording)
     % read from file
-    
-     vr.fid = fopen([fpath_target char(t) 'virmenLog.data'],'r');
+
+    vr.fid = fopen([fpath_target char(t) 'virmenLog.data'],'r');
     vr.data = fread(vr.fid,[7 inf],'double');
     vr.recordedPositions = vr.data(3:6,:);
     % transpose
     vr.recordedPositions = vr.recordedPositions';
 else
-    vr.rig.initializeDaq('Dev3');
+    vr.rig.initializeDaq('Dev4');
+    vr.rig.enableRewardUI();
     vr.fid = fopen([fpath_target char(t) '_' filename '_virmenLog.data'],'w');
+    if vr.fid == -1
+        error('Failed to open log file for writing.');
+    end
 end
 
 
@@ -69,10 +69,10 @@ if vr.position(2) > endPosition % test if the animal is at the end of the track
     vr.dp(:) = 0; % prevent any additional movement during teleportation
     if (vr.rig.isAcquiring)
         vr.trialNumber = vr.trialNumber + 1;
-        %vr.r_av(vr.trialNumber+1)=1; 
+        %vr.r_av(vr.trialNumber+1)=1;
         vr.r_av(vr.trialNumber+1)=double(rand>vr.fake_rate); %random fake
         vr.give_water=vr.r_av(vr.trialNumber+1);
-        %vr.reward_pos(vr.trialNumber+1)=(endPosition).*rand;
+        disp('Reward was faked in this lap')
         vr.reward_pos(vr.trialNumber+1)=(endPosition).*vr.reward_pos_world(vr.currentWorld);
     end
 end
@@ -84,46 +84,26 @@ if vr.position(2) <1 % test if the animal is at the end of the track
 end
 
 if vr.textClicked == 1 % check if textbox #1 has been clicked
-     vr.rig.reward();
+    vr.rig.reward();
 end
 % reward
 if vr.trialNumber>1
-if vr.position(2)>vr.reward_pos(vr.trialNumber+1) && vr.r_av(vr.trialNumber+1)==1
-    vr.rig.reward();
-    vr.r_av(vr.trialNumber+1)=0;
-    vr.reward_pos(vr.trialNumber+1)=0;
-      fprintf(repmat('\b', 1, length(vr.lapmessage))); % Erase the old message
-    vr.lapmessage = sprintf('Current lap is %d', vr.trialNumber);
-    fprintf(vr.lapmessage);
-end
+    if vr.position(2)>vr.reward_pos(vr.trialNumber+1) && vr.r_av(vr.trialNumber+1)==1
+        vr.rig.reward();
+        vr.r_av(vr.trialNumber+1)=0;
+        vr.reward_pos(vr.trialNumber+1)=0;
+        fprintf(repmat('\b', 1, length(vr.lapmessage))); % Erase the old message
+        vr.lapmessage = sprintf('Current lap is %d \n', vr.trialNumber);
+        fprintf(vr.lapmessage);
+    end
 end
 % fake reward
-  t2=datetime(datetime(now,'ConvertFrom','datenum'), 'InputFormat', 'yyyy-MM-dd HH:mm:ss.SSS');
-  vr.time=[vr.time second(t2-vr.startTime)];
-% if seconds(t2-vr.t1)>vr.fake_reward_time
-%     vr.rig.reward_fake();
-%     vr.fake_reward_time=0.5;
-%     vr.t1=t2;
-% end
-% figure(1);
-% clf;
-if length(vr.lickVoltage)<100
-vr.plot(1).x = rescale(vr.time)*vr.plotSize+vr.plotX;
-vr.plot(1).y = vr.lickVoltage*vr.plotSize+vr.plotY;
-vr.plot(1).color = [1 0 1];
-else
-vr.plot(1).x = rescale(vr.time(end-99:end))*vr.plotSize+vr.plotX;
-vr.plot(1).y = vr.lickVoltage(end-99:end)*vr.plotSize+vr.plotY;
-vr.plot(1).color = [1 0 1];    
-end
-
-% Update time text box
-%vr.text(2).string = ['TIME ' datestr(now-vr.startTime,'MM.SS')];
-
+t2=datetime(datetime(now,'ConvertFrom','datenum'), 'InputFormat', 'yyyy-MM-dd HH:mm:ss.SSS');
+vr.time=[vr.time second(t2-vr.startTime)];
 
 if (vr.rig.isAcquiring)
     timestamp = now;
-    vr.lickVoltage = [vr.lickVoltage read(vr.rig.waterSession, 1, "OutputFormat", "Matrix")];    
+    vr.lickVoltage = [vr.lickVoltage read(vr.rig.waterSession, 1, "OutputFormat", "Matrix")];
 
     % write timestamp and the x & y components of position and velocity to a file
     % using floating-point precision
